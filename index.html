@@ -1,0 +1,92 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>Earnings Per Second</title>
+  <meta name="description" content="How much do I earn each second?">
+  <meta name="author" content="Charlie Lee">
+</head>
+
+<body>
+  <h1>How much do I earn each second?</h1>
+  <h2>Find out now!</h2>
+  <p><label for="wage">Enter how much you earn per hour: </label></p>
+  <p>
+    £<input id="wage" type="number" step="0.01" min="0" placeholder="7.50">
+    <button id="start">Start/Reset</button>
+    <button id="stop">Stop</button>
+  </p>
+  <table border="1">
+    <tr>
+      <th>Time</th>
+      <th>Wage</th>
+    </tr>
+    <tr>
+      <td id="current-time">00:00:00</td>
+      <td id="current-earnings">£0.00</td>
+    </tr>
+  </table>
+
+  <script src="https://code.jquery.com/jquery-3.2.1.js" integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE=" crossorigin="anonymous"></script>
+  <script>
+    var wage = null;
+    var wagePerSecond = null;
+    var earned = null;
+    var time = null;
+    var req = null;
+    var tick = null;
+    var playing = false;
+
+    $("#start").click(function() {
+      if (playing) {
+        stop();
+      }
+      playing = true;
+      wage = $("#wage").val();
+      wagePerSecond = (wage / 3600).toFixed(2);
+      earned = 0;
+      time = 0;
+      countMoney();
+    });
+
+    $("#stop").click(function() {
+      stop();
+    });
+
+    /**
+     * Stops counting
+     */
+    function stop() {
+      playing = false;
+      cancelAnimationFrame(req);
+      clearTimeout(tick);
+    }
+
+    /**
+     * Updates the amount of money earned every second
+     */
+    function countMoney() {
+      tick = setTimeout(function() {
+        req = requestAnimationFrame(countMoney);
+        time++;
+        earned = time * wagePerSecond;
+        $("#current-time").html(secondsToTime(time));
+        $("#current-earnings").html("£"+earned.toFixed(2));
+      }, 1000);
+    }
+
+    /**
+     * Converts seconds to HH:MM:SS format
+     * @return Date as HH:MM:SS format string
+     */
+    function secondsToTime(seconds) {
+      var date = new Date(null);
+      date.setSeconds(seconds);
+      return date.toISOString().substr(11, 8);
+    }
+
+  </script>
+</body>
+</html>
